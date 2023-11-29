@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int convertCharsToInt(char char1, char char2);
+
+int main(int argc, char *argv[]) {
+  char **dict;
+  char fileName[100];
+  FILE *filep;
+  char c1;
+  char c2;
+  int d;
+  int dictIndex = 1;
+  int strIndex = 0;
+  int i;
+  int j;
+
+  // display syntax if no arguments passed on command line
+  if ( argc <= 1 ) {
+    printf("Syntax: %s filename\n", argv[0]);
+    return 1;
+  }
+
+  // if an argument is passed, it must be a file name
+  strcpy(fileName, argv[1]);
+
+  //open file
+  filep = fopen(fileName, "r");
+
+  //allocate array of 256 chars using malloc (array dictionary)
+  dict = malloc(sizeof(char *)*256);
+  for (i=0;i<256;i++) {
+    dict[i] = malloc(sizeof(char)*256);
+  }
+
+  //loop through everything in file
+   if (filep != NULL) {
+    //read char
+    while (fscanf(filep, "%c", &c1) != EOF) {
+      fscanf(filep, "%c", &c2);
+      d = convertCharsToInt(c1, c2);
+      
+      //if 0 - add to dictionary and print
+      if (d == 0){
+        fscanf(filep, "%c", &c1);
+        //put in dictionary
+        //CHECKprintf("%d\n", dictIndex);
+        dict[dictIndex][1] = c1;
+        dictIndex ++;
+        //write to output
+        printf("%c", c1);
+      } else { //nonzero - add multi char entry to dictionary
+        //interpret integer as index of existing array dict
+        //CHECKprintf("before c= dict[d][1]\n");
+        c2 = dict[(int)c1][1];
+        //create new dictionary copy that is a copy, put at nex\
+t available index
+        //CHECKprintf("before dict[dictIndex][1]\n");
+        //CHECKprintf("before dict[dictIndex][1]\n");
+        dict[dictIndex][1] = c2;
+        //CHECKprintf("after adding 1st char\n");
+
+
+        //read next int from file
+        fscanf(filep, "%c", &c1);
+        //append char to new dict entry
+        dict[dictIndex][2] = c1;
+        //CHECKprintf("after adding 2nd char\n");
+
+
+        //print to output
+
+        printf("%c", dict[dictIndex][1]);
+        printf("%c", dict[dictIndex][2]);
+        //CHECKprintf("after printing to output\n");
+        dictIndex ++;
+      }
+    }
+    fclose(filep);
+    }     else {
+    printf("fopen failed\n");
+  }
+
+  for (i=0;i<256;i++){
+    free(dict[i]);
+    dict[i] = NULL;
+  }
+  free(dict);
+  dict = NULL;
+  return 0;
+}
+
+int convertCharsToInt(char char1, char char2) {
+    return ((unsigned char) char1) + ( ((unsigned char) char2) << 8);
+}
